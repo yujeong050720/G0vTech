@@ -47,4 +47,4 @@ CLI는 인증 토큰 없이 로컬 실험을 실행하므로 처음에는 CLI를
 
 검증: `python -m unittest discover -s tests -p test_sentence_model.py -v`
 실제 CKKS 두 문장 왕복(하나는 API 경유) 및 미지원 입력 거부: 3개 통과.
-이전 음악/산책용 테스트는 CORPUS 변경 전 기준이며 이 문장 모델의 검증과 구분합니다.
+기존 다음 단어 예측 모델과 문장 조회 기능의 테스트는 별도로 존재합니다. 이 문서의 3개 테스트는 sentence_model.py에 대한 검증입니다.
