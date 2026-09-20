@@ -1,62 +1,66 @@
-# 기존 소형 모델 통합
+# 동형암호 문장 모델
 
-지정된 kakao-private-ai 폴더의 tiny_fhe 모델과 파일 교환 경로를 가져왔습니다.
-학습 코퍼스·가중치 계산·CKKS 계산은 그대로 유지합니다. 의존성은 함수 실행 시 로드합니다.
-이는 제한된 합성 어휘로 다음 단어를 예측하는 실제 모델이며 의료 설명 모델은 아닙니다.
+현재 서비스는 `sentence_model.py`의 초소형 조건부 토큰 모델을 사용합니다. 두 가지 가상 처방 문장으로 학습하며, 입력을 CKKS로 암호화한 상태에서 모델 점수를 계산합니다.
 
-## 실행 (Python 3.12)
+| 입력 | 출력 |
+| --- | --- |
+| 가상약A 1정 처방 | 실험용 문구입니다 음주를 피하세요 |
+| 가상약B 1정 처방 | 실험용 문구입니다 식사 시간을 확인하세요 |
+
+지원하는 문장만 입력할 수 있습니다. 범용 LLM이나 실제 의료 모델은 아닙니다.
+
+## 설치와 실행
+
+프로젝트 루트에서 Python 3.12로 실행합니다.
 
 ```powershell
-python -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements.txt -r tiny_fhe/requirements.txt
-$env:LOCAL_API_TOKEN = .\.venv\Scripts\python -c "import secrets; print(secrets.token_urlsafe(32))"
-$env:ENABLE_TINY_FHE_DEMO = '1'
-# 필요하면 같은 셸에서 아래 요청 검증용으로 서버를 별도 실행합니다.
+.\.venv\Scripts\python -m tiny_fhe.sentence_model
+```
+
+학습 입력과 답변은 `sentence_model.py`의 `TRAINING_PAIRS`에 있습니다.
+
+## 계산 과정
+
+1. 입력 문장을 단어 빈도 벡터로 변환합니다.
+2. 답변 위치별 토큰을 예측하는 선형 가중치를 학습합니다.
+3. 입력 벡터를 CKKS로 암호화합니다.
+4. 별도 평가 프로세스에서 암호문 행렬 연산을 수행합니다.
+5. 결과 점수를 복호화하고 위치별 argmax로 답변 토큰을 선택합니다.
+
+`verified`는 평문 기준 계산과 암호문 계산 결과의 수치 검증입니다. 의료적 정확성이나 악성 서버에 대한 암호학적 증명을 뜻하지 않습니다.
+
+## 로컬 API
+
+`app.py`의 `/medication-info` 기본 모델은 `sentence-fhe`입니다.
+
+```powershell
+$env:LOCAL_API_TOKEN = (& .\.venv\Scripts\python -c "import secrets; print(secrets.token_urlsafe(32))")
+$env:MEDICATION_MODEL = 'sentence-fhe'
 .\.venv\Scripts\python app.py
 ```
 
-기존 `POST /medication-info`와 `prescription` JSON 필드는 유지합니다.
-기본 MEDICATION_MODEL=tiny-fhe로 외부 API에 입력을 보내지 않습니다.
-새 모델 경로와 medication-info에는 Authorization Bearer LOCAL_API_TOKEN이 필요합니다.
-Origin이 있는 브라우저 요청은 기존 폴더의 정책대로 거부합니다.
+`POST /medication-info`에 다음 JSON과 `Authorization: Bearer <LOCAL_API_TOKEN>` 헤더를 보냅니다.
 
 ```json
-{"prescription":"음악 산책"}
+{"prescription":"가상약A 1정 처방"}
 ```
 
-처리: 문자열 검증 → 기존 모델의 어휘 검사 → CKKS 암호화 → 로컬 암호문 계산 → 복호화 및 오차 검증.
-한 단어 입력은 기존 모델의 두 벡터 배치에 같은 단어를 넣고 결과 한 개만 반환합니다.
-diagnosis는 호환을 위해 받지만 이 소형 모델의 입력으로 사용하지 않습니다.
-결과 predictions에는 좋아해/즐겨가 나옵니다. explanation은 null이고 medical_llm은 false입니다.
-약 이름처럼 어휘에 없는 입력은 422 MODEL_INPUT_UNSUPPORTED로 반환합니다.
-알 수 없는 입력을 임의로 어휘에 대응시키거나 가짜 약 설명을 생성하지 않습니다.
-로컬 직접 호출의 입력·키·결과는 임시 디렉터리에 만들고 처리가 끝나면 정리합니다.
-키 보유 프로세스에서 로컬 검증하므로 원격 서버 분리 배포를 검증한 것은 아닙니다.
+안내 문장은 응답의 `explanation`에 있습니다. 이 로컬 API는 Origin 헤더가 있는 브라우저 요청을 거부합니다. 공개 웹 UI는 별도 진입점인 `web_demo.py`를 사용합니다.
 
-## 원래 파일 교환 방식도 유지
+## 기존 실험 코드
 
-1. GET /private-ai/demo/capabilities: 어휘·활성화 여부.
-2. POST /private-ai/demo/jobs: {"tokens":["음악","산책"]}.
-3. 응답 request_url에서 공개 요청 ZIP 다운로드.
-4. colab_server.ipynb에서 계산하거나 demo.py evaluate로 별도 계산.
-5. POST /private-ai/demo/jobs/{job_id}/result에 multipart file로 결과 ZIP 전송.
+`demo.py`, `prescription.py`, `routes.py`, Colab 파일은 이전 다음 단어 예측·문장 조회·파일 교환 실험용입니다. 현재 문장 모델과 구분해야 합니다.
 
-파일 교환 작업의 비밀키는 local_data에 남으므로 PC 안에서 관리합니다.
-원본 폴더의 비밀키·실제 입력·배포 인증 토큰은 복사하지 않았습니다.
-현재 통합 범위는 tiny_fhe 모델·파일 교환 API·처방 입력 어댑터입니다.
-범용 private_ai/Cloudflare 서버는 이 모델 실행에 필요하지 않아 복사하지 않았습니다.
+`MEDICATION_MODEL=tiny-fhe`는 이전 경로를 선택합니다. 이 경로에는 등록 문장을 그대로 조회하는 처리도 있으므로 모든 응답이 동형암호 모델의 생성 결과인 것은 아닙니다.
 
-## 호환성
+## 검증
 
-이전 Claude 경로는 MEDICATION_MODEL=claude로 명시적으로 설정한 경우에만 사용합니다.
-실패 시 자동으로 Claude/DUR 외부 API로 전환하지 않습니다.
-기존 파일 업로드·SQLite 코드는 유지했습니다. 처방 API 응답은 모델 결과 스키마로 바뀝니다.
-실제 약 설명 제공에는 이 소형 모델과 별도로 해당 기능을 수행하는 모델/자료 연결이 필요합니다.
-
-## 테스트
+프로젝트 루트에서 실행합니다.
 
 ```powershell
-python -m unittest discover -s tests -v
+.\.venv\Scripts\python -m unittest discover -s tests -v
 ```
 
-test_model_bridge는 실제 TenSEAL이 필요하며 미설치 시 건너뛰어 성공으로 표시하지 않습니다.
+자세한 계산 구조는 [SENTENCE_DEMO.md](SENTENCE_DEMO.md)를 참고하세요.
