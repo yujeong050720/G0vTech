@@ -48,7 +48,9 @@ python deploy/create_public_key.py
 
 ## 4. Render Free 서버 생성
 
-이 웹 버전의 파일이 포함된 GitHub 저장소를 준비한 뒤 https://dashboard.render.com 에 로그인합니다.
+[G0vTech 저장소](https://github.com/yujeong050720/G0vTech)에 이 웹 버전의 파일을 업로드한 뒤 https://dashboard.render.com 에 로그인합니다. 루트 파일뿐 아니라 `contracts`, `deploy`, `examples`, `static`, `tests`, `tiny_fhe` 폴더도 구조를 유지하여 포함해야 합니다. `local_data`, `keys`, `.env`, 가상환경 및 개인키 파일은 업로드하지 않습니다.
+
+기존 Render 서비스는 `medical-blockchain-demo` 저장소에 연결되어 있습니다. 새 저장소 업로드만으로 연결이 바뀌지는 않습니다. 기존 서비스에서 G0vTech를 사용하려면 Render의 저장소 연결 설정도 별도로 변경해야 합니다.
 
 ### Blueprint 사용
 
