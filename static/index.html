@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>처방전 암호화 실험실</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+<header><a href="/" class="brand"><span class="brand-mark">M</span> Medical demo</a><span class="badge">SEPOLIA · 실험용</span></header>
+<main>
+  <div class="eyebrow">ENCRYPTED PRESCRIPTION LAB</div>
+  <h1>처방전 한 문장,<br>암호화부터 AI 안내까지.</h1>
+  <p class="intro">가상 처방전을 IPFS에 보관하고 블록체인에 기록합니다.<br>작은 AI 모델이 동형암호로 계산한 결과를 직접 확인해 보세요.</p>
+  <p id="setup" class="notice" hidden>서버 연결 설정이 아직 완료되지 않았습니다. 화면을 둘러볼 수 있지만 실험은 준비 중입니다.</p>
+  <div class="layout">
+    <section class="panel input-panel" aria-labelledby="input-title">
+      <div class="eyebrow">01 / INPUT</div><h2 id="input-title">가상 처방전 입력</h2>
+      <form id="demo-form">
+        <label for="code">체험 코드</label>
+        <input id="code" type="password" minlength="16" maxlength="256" required autocomplete="off" placeholder="운영자에게 받은 체험 코드">
+        <p class="hint">지갑 개인키나 Pinata JWT를 입력하는 칸이 아닙니다.</p>
+        <label for="prescription">처방 문장</label>
+        <textarea id="prescription" rows="3" maxlength="80" required>가상약A 1정 처방</textarea>
+        <div class="examples"><button type="button" data-prompt="가상약A 1정 처방">가상약A</button><button type="button" data-prompt="가상약B 1정 처방">가상약B</button></div>
+        <p class="hint">지원 문장: 가상약A 1정 처방 / 가상약B 1정 처방</p>
+        <button id="submit" class="primary" type="submit">전체 과정 실험하기 <span>→</span></button>
+        <p class="hint">실제 IPFS 업로드와 Sepolia 거래를 실행합니다.<br>하루 총 20회 · 한 번에 한 명씩 체험할 수 있습니다.</p>
+        <button id="resume" type="button">최근 실험 결과 다시 확인</button>
+      </form>
+    </section>
+    <section class="panel result-panel" aria-labelledby="result-title">
+      <div class="eyebrow">02 / RESULT</div><h2 id="result-title">처리 결과</h2>
+      <p id="status" role="status" aria-live="polite">입력 후 실험 버튼을 눌러주세요.</p>
+      <div class="step"><span class="number">1</span><div><strong>암호화 · IPFS 저장</strong><p id="ipfs-state">대기 중</p></div></div>
+      <div class="step"><span class="number">2</span><div><strong>Sepolia 원장 등록</strong><p id="chain-state">대기 중</p></div></div>
+      <div class="step"><span class="number">3</span><div><strong>동형암호 AI 계산</strong><p id="ai-state">대기 중</p></div></div>
+      <div id="answer-box" class="answer" hidden><span>AI 안내 문장</span><p id="answer"></p><small id="verified"></small></div>
+      <div id="proof" hidden><label>CID</label><code id="cid"></code><a id="transaction" target="_blank" rel="noopener noreferrer" hidden>Sepolia 거래 확인 ↗</a><button id="download" type="button" hidden>결과 JSON 저장</button></div>
+    </section>
+  </div>
+  <section class="footnote"><strong>이 실험의 범위</strong><p>가상 문장 두 개로 학습한 초소형 모델입니다. 실제 처방전이나 개인정보를 입력하지 마세요. 브라우저 입력은 HTTPS로 서버에 전달되며, 서버가 AI 계산 전에 CKKS로 암호화합니다. 브라우저에서부터 동형암호화하는 서비스는 아닙니다. 저장 파일은 AES로 암호화하며, 실제 복약 판단에 사용할 수 없습니다.</p></section>
+</main>
+<footer>Medical Blockchain Demo <span>IPFS + Sepolia + CKKS</span></footer>
+</body></html>
