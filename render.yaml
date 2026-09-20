@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: medical-blockchain-demo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-web.txt
+    startCommand: python web_demo.py
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: HOST
+        value: 0.0.0.0
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: PINATA_JWT
+        sync: false
+      - key: WEB3_PROVIDER_URL
+        sync: false
+      - key: PRIVATE_KEY
+        sync: false
+      - key: CONTRACT_ADDRESS
+        value: 0xcC8AA93b0E3b8FA50688D0e36CD15281424a201B
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: HOSPITAL_PUBLIC_KEY_B64
+        sync: false
+      - key: DEMO_ACCESS_CODE
+        sync: false

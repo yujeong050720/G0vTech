@@ -1,0 +1,7 @@
+flask
+requests
+web3
+pycryptodome
+numpy
+tenseal==0.3.16
+waitress==3.0.2
