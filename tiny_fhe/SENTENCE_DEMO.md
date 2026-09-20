@@ -3,7 +3,7 @@
 현재 프로젝트 루트에서 실행:
 
 ```powershell
-..\.venv312\Scripts\python -m tiny_fhe.sentence_model
+..\.venv\Scripts\python
 ```
 
 입력 예: `가상약A 1정 처방` 또는 `가상약B 1정 처방`.
@@ -33,7 +33,7 @@ sentence_model.py의 TRAINING_PAIRS에서 입력/답변 학습 쌍을 수정합�
 
 ```powershell
 $env:MEDICATION_MODEL = 'sentence-fhe'
-..\.venv312\Scripts\python app.py
+..\.venv\Scripts\python
 ```
 
 기존 LOCAL_API_TOKEN 인증을 유지합니다. POST /medication-info 요청:
