@@ -22,8 +22,8 @@
 Python **3.12 (64비트)**와 Git을 준비하세요. 아래 명령은 프로젝트 루트에서 실행합니다.
 
 ```powershell
-git clone https://github.com/yujeong050720/medical-blockchain-demo.git
-cd medical-blockchain-demo
+git clone https://github.com/yujeong050720/G0vTech.git
+cd G0vTech
 py -3.12 -m venv .venv
 .\.venv\Scripts\python -m pip install --upgrade pip
 .\.venv\Scripts\python -m pip install -r requirements.txt -r tiny_fhe/requirements.txt
